@@ -3,20 +3,52 @@ package day04
 import day04.EventType.FALLING_ASLEEP
 import day04.EventType.WAKING_UP
 
-fun String.calculateSleepingMinutes(): Int {
+fun String.calculateSleepingMinutes(): Int = toEvents().calculateSleepingMinutes()
 
-    val events = this.split("\n").map { Event.from(it) }
-    val fallsAsleepEvents = events.filter { it.type == FALLING_ASLEEP }
-    val wakesUpEvents = events.filter { it.type == WAKING_UP }
+private fun List<Event>.calculateSleepingMinutes(): Int {
+    val fallsAsleepEvents = filter { it.type == FALLING_ASLEEP }
+    val wakesUpEvents = filter { it.type == WAKING_UP }
 
     return fallsAsleepEvents
         .zip(wakesUpEvents)
         .map { (fallsAsleepEvent, wakesUpEvent) ->
-            wakesUpEvent - fallsAsleepEvent }
+            wakesUpEvent - fallsAsleepEvent
+        }
         .sum()
 }
+
+data class ParsingContext(val parsedEvents: List<Event>, val currentGuardId: String?)
+
+private fun String.toEvents(): List<Event> {
+    val parsingContext = ParsingContext(listOf(), null)
+
+    return this
+        .split("\n")
+        .sorted()
+        .fold(parsingContext) { context, line ->
+            val event = Event.from(line)
+            val currentGuardId = event.guardId ?: context.currentGuardId
+
+            ParsingContext(
+                parsedEvents = context.parsedEvents + event.copy(guardId = currentGuardId),
+                currentGuardId = currentGuardId
+            )
+        }
+        .parsedEvents
+}
+
 fun String.calculateSleepingMinutesForSeveralGuards(): Map<String, Int> {
-    return mapOf()
+    return toEvents()
+        .groupBy { it.guardId }
+
+        .mapNotNull { (guardId, events) ->
+            guardId!! to events.calculateSleepingMinutes()
+        }.toMap()
+}
+
+fun String.calculateMaxSleepingTimeGuard(): String? {
+    return calculateSleepingMinutesForSeveralGuards()
+        .maxBy { (_, sleepingTime) -> sleepingTime }?.key
 }
 
 data class Event(val type: EventType, val date: String, val time: String, val guardId: String? = null) {
