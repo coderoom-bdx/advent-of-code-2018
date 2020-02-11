@@ -88,6 +88,26 @@ class Day04Test {
             [1518-11-04 00:40] wakes up
         """.trimIndent()
         input2.calculateSleepingMinutesForSeveralGuards() shouldBe mapOf("10" to 45, "99" to 25)
+
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:25] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:55] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:50] wakes up
+            [1518-11-03 00:05] Guard #10 begins shift
+            [1518-11-03 00:24] falls asleep
+            [1518-11-03 00:29] wakes up
+            [1518-11-04 00:02] Guard #99 begins shift
+            [1518-11-04 00:36] falls asleep
+            [1518-11-04 00:46] wakes up
+            [1518-11-05 00:03] Guard #99 begins shift
+            [1518-11-05 00:45] falls asleep
+            [1518-11-05 00:55] wakes up
+        """.trimIndent().calculateSleepingMinutesForSeveralGuards() shouldBe mapOf("10" to 50, "99" to 30)
     }
 
     @Test
@@ -104,7 +124,70 @@ class Day04Test {
         """.trimIndent()
         input.calculateMaxSleepingTimeGuard() shouldBe "10"
     }
+
+    @Test
+    fun `should find the minutes that a guard spent asleep for one night`() {
+        val input = """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:10] wakes up
+            [1518-11-01 00:40] falls asleep
+            [1518-11-01 00:42] wakes up
+       """.trimIndent()
+
+        input.findAsleepMinutes() shouldBe listOf(
+            5, 6, 7, 8, 9, 40, 41
+        )
+    }
+
+    @Test
+    fun `should find the minute that a guard spends asleep the most`() {
+
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:25] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:55] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:50] wakes up
+            [1518-11-03 00:05] Guard #10 begins shift
+            [1518-11-03 00:24] falls asleep
+            [1518-11-03 00:29] wakes up
+            [1518-11-04 00:02] Guard #99 begins shift
+            [1518-11-04 00:36] falls asleep
+            [1518-11-04 00:46] wakes up
+            [1518-11-05 00:03] Guard #99 begins shift
+            [1518-11-05 00:45] falls asleep
+            [1518-11-05 00:55] wakes up
+       """.trimIndent().findMostFrequentAsleepMinute("10") shouldBe 24
+
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:25] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:55] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:50] wakes up
+            [1518-11-03 00:05] Guard #10 begins shift
+            [1518-11-03 00:24] falls asleep
+            [1518-11-03 00:29] wakes up
+            [1518-11-04 00:02] Guard #99 begins shift
+            [1518-11-04 00:36] falls asleep
+            [1518-11-04 00:46] wakes up
+            [1518-11-05 00:03] Guard #99 begins shift
+            [1518-11-05 00:45] falls asleep
+            [1518-11-05 00:55] wakes up
+       """.trimIndent().findMostFrequentAsleepMinute("18") shouldBe null
+
+    }
+
 }
+
+
 
 
 
