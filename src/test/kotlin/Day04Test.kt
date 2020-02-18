@@ -185,7 +185,69 @@ class Day04Test {
 
     }
 
+    @Test
+    internal fun `should find the guard most frequently asleep on same minute`() {
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:25] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:55] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:50] wakes up
+            [1518-11-03 00:05] Guard #10 begins shift
+            [1518-11-03 00:24] falls asleep
+            [1518-11-03 00:29] wakes up
+            [1518-11-04 00:02] Guard #99 begins shift
+            [1518-11-04 00:36] falls asleep
+            [1518-11-04 00:46] wakes up
+            [1518-11-05 00:03] Guard #99 begins shift
+            [1518-11-05 00:45] falls asleep
+            [1518-11-05 00:55] wakes up
+       """.trimIndent().findTheGuardMostFrequentlyAsleepOnSameMinute() shouldBe Pair("99", 45)
+    }
+
+    @Test
+    internal fun `should find all sleeping minutes for each guard`() {
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:07] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:33] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:45] wakes up
+       """.trimIndent().findAllSleepingMinutesForEachGuard() shouldBe mapOf(
+            "10" to listOf(5, 6, 30, 31, 32),
+            "99" to listOf(40, 41, 42, 43, 44)
+        )
+    }
+    @Test
+    internal fun `should find the number of times sleeping minutes for each guard`() {
+        """
+            [1518-11-01 00:00] Guard #10 begins shift
+            [1518-11-01 00:05] falls asleep
+            [1518-11-01 00:07] wakes up
+            [1518-11-01 00:30] falls asleep
+            [1518-11-01 00:33] wakes up
+            [1518-11-03 00:00] Guard #10 begins shift
+            [1518-11-03 00:04] falls asleep
+            [1518-11-03 00:07] wakes up
+            [1518-11-01 23:58] Guard #99 begins shift
+            [1518-11-02 00:40] falls asleep
+            [1518-11-02 00:45] wakes up
+       """.trimIndent().findTheNumberOfTimesEachGuardSleep() shouldBe mapOf(
+            "10" to mapOf(4 to 1, 5 to 2, 6 to 2, 30 to 1, 31 to 1, 32 to 1),
+            "99" to mapOf(40 to 1, 41 to 1, 42 to 1, 43 to 1, 44 to 1)
+        )
+    }
 }
+
+
+
+
 
 
 

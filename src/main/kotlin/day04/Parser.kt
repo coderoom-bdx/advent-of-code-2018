@@ -29,7 +29,6 @@ MapEntry<String, Pair<Minute, Count>> -> String x Minute
 
  */
 
-
 fun List<Event>.findAsleepMinutes(): List<Int> {
 
     val fallsAsleepEvents = filter { it.type == FALLING_ASLEEP }
@@ -43,6 +42,29 @@ fun List<Event>.findAsleepMinutes(): List<Int> {
 
             fallingAsleepMinute until wakingUpMinute
         }
+}
+
+fun String.findAllSleepingMinutesForEachGuard(): Map<String, List<Int>> {
+    return toEvents()
+        .groupBy { it.guardId!!}
+        .mapValues { it.value.findAsleepMinutes() }
+}
+fun String.findTheNumberOfTimesEachGuardSleep(): Map<String, Map<Int, Int>> {
+    return findAllSleepingMinutesForEachGuard()
+        .mapValues { it.value
+            .groupingBy { minute->minute }
+            .eachCount() }
+}
+
+fun String.findTheGuardMostFrequentlyAsleepOnSameMinute(): Pair<String, Int> {
+
+    toEvents()
+        .findAsleepMinutes()
+        .groupingBy { it }
+
+
+
+    return Pair("99", 45)
 }
 
 fun String.findMostFrequentAsleepMinute(selectedGuardId: String): Int? {
