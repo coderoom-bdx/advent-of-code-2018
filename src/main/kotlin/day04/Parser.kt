@@ -3,33 +3,14 @@ package day04
 import day04.EventType.FALLING_ASLEEP
 import day04.EventType.WAKING_UP
 
-fun String.calculateSleepingMinutes(): Int = toEvents().calculateSleepingMinutes()
-
-fun String.findAsleepMinutes() = toEvents().findAsleepMinutes()
-
-/*
-TODO part 2
-
-Guard 10 -> 20, 21, 22, 45, 46, 45, 45 -> (45, 3), (20, 1), (21, 1), etc.
-Guard 99 -> 4, 5, 6, 5                 -> (5, 2), (4, 1), (6, 1),
-Guard 12 -> 30, 31, 32                 -> (30, 1), etc.
-
-
-Map<String, List<Event>>
-
+typealias GuardId = String
 typealias Minute = Int
-typealias Count = Int
 
-Map<String, List<Pair<Minute, Count>>
--> mapValues()
-Map<String, Pair<Minute, Count>>
--> maxBy(values.second)
+fun String.calculateNumberOfSleepingMinutes(): Int = toEvents().calculateNumberOfSleepingMinutes()
 
-MapEntry<String, Pair<Minute, Count>> -> String x Minute
+fun String.findAsleepMinutes(): List<Minute> = toEvents().findAsleepMinutes()
 
- */
-
-fun List<Event>.findAsleepMinutes(): List<Int> {
+fun List<Event>.findAsleepMinutes(): List<Minute> {
 
     val fallsAsleepEvents = filter { it.type == FALLING_ASLEEP }
     val wakesUpEvents = filter { it.type == WAKING_UP }
@@ -37,37 +18,40 @@ fun List<Event>.findAsleepMinutes(): List<Int> {
     return fallsAsleepEvents
         .zip(wakesUpEvents)
         .flatMap { (fallsAsleepEvent, wakesUpEvent) ->
-            val fallingAsleepMinute = fallsAsleepEvent.extractMinutes()
-            val wakingUpMinute = wakesUpEvent.extractMinutes()
+            val fallingAsleepMinute = fallsAsleepEvent.extractMinute()
+            val wakingUpMinute = wakesUpEvent.extractMinute()
 
             fallingAsleepMinute until wakingUpMinute
         }
 }
 
-fun String.findAllSleepingMinutesForEachGuard(): Map<String, List<Int>> {
+fun String.findAllSleepingMinutesForEachGuard(): Map<GuardId, List<Minute>> {
     return toEvents()
-        .groupBy { it.guardId!!}
-        .mapValues { it.value.findAsleepMinutes() }
+        .groupBy { it.guardId!! }
+        .mapValues { (_, events) -> events.findAsleepMinutes() }
 }
-fun String.findTheNumberOfTimesEachGuardSleep(): Map<String, Map<Int, Int>> {
+
+fun String.findTheNumberOfTimesEachGuardSleep(): Set<Triple<GuardId, Minute, Int>> {
     return findAllSleepingMinutesForEachGuard()
-        .mapValues { it.value
-            .groupingBy { minute->minute }
-            .eachCount() }
+        .mapValues { (_, minutes) ->
+            minutes.groupingBy { it }.eachCount()
+        }
+        .flatMap { (guardId, mapOfMinutesAndCount) ->
+            mapOfMinutesAndCount.map { (minute, count) ->
+                Triple(guardId, minute, count)
+            }
+        }.toSet()
 }
 
-fun String.findTheGuardMostFrequentlyAsleepOnSameMinute(): Pair<String, Int> {
+fun String.findTheGuardMostFrequentlyAsleepOnSameMinute(): Pair<GuardId, Minute> {
 
-    toEvents()
-        .findAsleepMinutes()
-        .groupingBy { it }
+    val mostFrequentAsleepMinute = findTheNumberOfTimesEachGuardSleep()
+        .maxBy { (_, _, count) -> count }
 
-
-
-    return Pair("99", 45)
+    return Pair(mostFrequentAsleepMinute!!.first, mostFrequentAsleepMinute.second)
 }
 
-fun String.findMostFrequentAsleepMinute(selectedGuardId: String): Int? {
+fun String.findMostFrequentAsleepMinute(selectedGuardId: GuardId): Minute? {
     return toEvents()
         .filter { it.guardId == selectedGuardId }
         .findAsleepMinutes()
@@ -77,7 +61,7 @@ fun String.findMostFrequentAsleepMinute(selectedGuardId: String): Int? {
         ?.key
 }
 
-private fun List<Event>.calculateSleepingMinutes(): Int {
+private fun List<Event>.calculateNumberOfSleepingMinutes(): Int {
     val fallsAsleepEvents = filter { it.type == FALLING_ASLEEP }
     val wakesUpEvents = filter { it.type == WAKING_UP }
 
@@ -89,16 +73,16 @@ private fun List<Event>.calculateSleepingMinutes(): Int {
         .sum()
 }
 
-fun String.calculateSleepingMinutesForSeveralGuards(): Map<String, Int> {
+fun String.calculateSleepingMinutesForSeveralGuards(): Map<GuardId, Int> {
     return toEvents()
         .groupBy { it.guardId }
         .mapNotNull { (guardId, events) ->
-            guardId!! to events.calculateSleepingMinutes()
+            guardId!! to events.calculateNumberOfSleepingMinutes()
         }
         .toMap()
 }
 
-fun String.calculateMaxSleepingTimeGuard(): String? {
+fun String.calculateMaxSleepingTimeGuard(): GuardId? {
     return calculateSleepingMinutesForSeveralGuards()
         .maxBy { (_, sleepingTime) -> sleepingTime }?.key
 }
@@ -127,10 +111,10 @@ private fun String.toEvents(): List<Event> {
 data class Event(val type: EventType, val date: String, val time: String, val guardId: String? = null) {
 
     operator fun minus(otherEvent: Event): Int {
-        return this.extractMinutes() - otherEvent.extractMinutes()
+        return this.extractMinute() - otherEvent.extractMinute()
     }
 
-    fun extractMinutes() = time.split(":")[1].toInt()
+    fun extractMinute(): Minute = time.split(":")[1].toInt()
 
     companion object {
         fun from(line: String): Event {

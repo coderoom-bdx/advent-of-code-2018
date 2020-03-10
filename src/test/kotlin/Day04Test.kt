@@ -42,7 +42,7 @@ class Day04Test {
            [1518-11-01 00:55] wakes up
        """.trimIndent()
 
-        input.calculateSleepingMinutes() shouldBe 45
+        input.calculateNumberOfSleepingMinutes() shouldBe 45
     }
 
     @Test
@@ -224,8 +224,9 @@ class Day04Test {
             "99" to listOf(40, 41, 42, 43, 44)
         )
     }
+
     @Test
-    internal fun `should find the number of times sleeping minutes for each guard`() {
+    internal fun `should find the number of times sleeping minutes for each guard with triple`() {
         """
             [1518-11-01 00:00] Guard #10 begins shift
             [1518-11-01 00:05] falls asleep
@@ -238,9 +239,18 @@ class Day04Test {
             [1518-11-01 23:58] Guard #99 begins shift
             [1518-11-02 00:40] falls asleep
             [1518-11-02 00:45] wakes up
-       """.trimIndent().findTheNumberOfTimesEachGuardSleep() shouldBe mapOf(
-            "10" to mapOf(4 to 1, 5 to 2, 6 to 2, 30 to 1, 31 to 1, 32 to 1),
-            "99" to mapOf(40 to 1, 41 to 1, 42 to 1, 43 to 1, 44 to 1)
+       """.trimIndent().findTheNumberOfTimesEachGuardSleep() shouldBe setOf(
+            Triple("10", 4, 1),
+            Triple("10", 5, 2),
+            Triple("10", 6, 2),
+            Triple("10", 30, 1),
+            Triple("10", 31, 1),
+            Triple("10", 32, 1),
+            Triple("99", 40, 1),
+            Triple("99", 41, 1),
+            Triple("99", 42, 1),
+            Triple("99", 43, 1),
+            Triple("99", 44, 1)
         )
     }
 }
